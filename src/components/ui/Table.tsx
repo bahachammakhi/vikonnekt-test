@@ -21,7 +21,7 @@ export default function Table<T>({ headers, data }: TableProps<T>) {
             <th style={{ borderBottom: "1px solid black" }}>{header.title}</th>
           ))}
         </tr>
-        {data.map((row) => {
+        {data.map((row, index) => {
           return (
             <tr style={{ border: "1px solid black" }}>
               {headers.map((header, i) => {
@@ -29,7 +29,7 @@ export default function Table<T>({ headers, data }: TableProps<T>) {
                   ? row[header.dataIndex]
                   : null;
                 if (header.render) {
-                  value = header.render(row, i);
+                  value = header.render(row, index);
                 }
                 return (
                   <td style={{ borderBottom: "1px solid black" }}>{value}</td>
