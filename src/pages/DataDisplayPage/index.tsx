@@ -1,23 +1,14 @@
 import React from "react";
-import { neoApi } from "../api";
-import BarChart from "../components/charts/BarChart";
-import useQuery from "../hooks/useQuery";
+import { neoApi } from "../../api";
+import BarChart from "../../components/charts/BarChart";
+import { transformEstimatedDiameters } from "../../components/modules/DataDisplay/transformers";
+import useQuery from "../../hooks/useQuery";
 
 export default function DataDisplayPage() {
   const { data, error, isLoading } = useQuery({
     queryFn: neoApi.getBrowseNeoApi,
     queryKey: "getBrowseNeoApi",
-    transformFn: (data) => {
-      return data
-        ? data.near_earth_objects.map(({ name, estimated_diameter }) => {
-            return [
-              name,
-              estimated_diameter.kilometers.estimated_diameter_min,
-              estimated_diameter.kilometers.estimated_diameter_max,
-            ];
-          })
-        : [];
-    },
+    transformFn: transformEstimatedDiameters,
   });
   if (isLoading) return <div>Loading</div>;
   if (error) return <div>{error}</div>;
