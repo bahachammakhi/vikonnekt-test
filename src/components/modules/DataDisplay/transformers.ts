@@ -2,10 +2,12 @@ import {
   IGetBrowseNeoApiResponse,
   NearEarthObject,
 } from "../../../api/neo/types";
+import { TO_SHOW } from "../../../pages/DataDisplayPage";
 import { sortByAverage } from "./utils";
 
 interface IFilters {
   orbiting_body: string;
+  toShow: TO_SHOW;
 }
 
 const filterByOrbitingBody = (filters: IFilters) => {
@@ -16,21 +18,26 @@ const filterByOrbitingBody = (filters: IFilters) => {
     );
   };
 };
+const transformToChartsEstimatedDiameters = ({
+  name,
+  estimated_diameter,
+}: NearEarthObject) => {
+  return [
+    name,
+    estimated_diameter.kilometers.estimated_diameter_min,
+    estimated_diameter.kilometers.estimated_diameter_max,
+  ];
+};
 
-export const transformEstimatedDiameters = (filters: IFilters) => {
+export const transformToTableEstimatedDiameters = (filters: IFilters) => {
   return (data: IGetBrowseNeoApiResponse | null) => {
-    const preResult = data
-      ? data.near_earth_objects
-          .filter(filterByOrbitingBody(filters))
-          .map(({ name, estimated_diameter }) => {
-            return [
-              name,
-              estimated_diameter.kilometers.estimated_diameter_min,
-              estimated_diameter.kilometers.estimated_diameter_max,
-            ];
-          })
+    return data
+      ? data.near_earth_objects.filter(filterByOrbitingBody(filters))
       : [];
-
-    return preResult.sort(sortByAverage);
   };
+};
+export const transformEstimatedDiameters = (data: NearEarthObject[] | null) => {
+  const preResult = data ? data.map(transformToChartsEstimatedDiameters) : [];
+
+  return preResult.sort(sortByAverage);
 };
