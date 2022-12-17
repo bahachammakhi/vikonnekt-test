@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { data as dataLoad } from "../pages/data";
 
 const cache = new Map();
 
@@ -27,7 +28,8 @@ function useQuery<Data, Variables = Record<string, any>, TransformData = Data>({
           const data = cache.get(queryKey);
           setData(data);
         } else {
-          const data = await queryFn(variables);
+          const data = dataLoad;
+          // const data = await queryFn(variables);
           cache.set(queryKey, data);
           setData(data as any);
         }

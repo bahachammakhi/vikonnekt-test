@@ -3,12 +3,12 @@ enum METHODS {
   GET = "GET",
 }
 
-async function fetchCall(
+async function fetchCall<Data>(
   url: string,
   method: METHODS,
   headers: HeadersInit,
   body?: BodyInit
-) {
+): Promise<Data> {
   const response = await fetch(url, {
     method,
     headers: {
@@ -20,8 +20,9 @@ async function fetchCall(
 }
 
 const methods = {
-  get: (url: string, headers?: HeadersInit) =>
-    fetchCall(url, METHODS.GET, headers || {}),
+  get: function <Data>(url: string, headers?: HeadersInit) {
+    return fetchCall<Data>(url, METHODS.GET, headers || {});
+  },
 };
 
 export default methods;
