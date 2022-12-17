@@ -1,15 +1,9 @@
-import React, { useState } from "react";
-import { neoApi } from "../../api";
-import { NearEarthObject } from "../../api/neo/types";
+import React from "react";
 import BarChart from "../../components/charts/BarChart";
-import {
-  transformEstimatedDiameters,
-  transformToTableEstimatedDiameters,
-} from "../../components/modules/DataDisplay/transformers";
+import useShowNeoData from "../../components/modules/DataDisplay/useShowNeoData";
 import CheckBox from "../../components/ui/CheckBox";
 import Select from "../../components/ui/Select";
 import Table from "../../components/ui/Table";
-import useQuery from "../../hooks/useQuery";
 
 export enum TO_SHOW {
   TABLE = "table",
@@ -17,36 +11,25 @@ export enum TO_SHOW {
 }
 
 export default function DataDisplayPage() {
-  const [filters, setFilters] = useState({
-    orbiting_body: "none",
-    toShow: TO_SHOW.TABLE,
-  });
-  const { transformedData, error, isLoading } = useQuery({
-    queryFn: neoApi.getBrowseNeoApi,
-    queryKey: "getBrowseNeoApi",
-    transformFn: transformToTableEstimatedDiameters(filters),
-  });
+  const {
+    filters,
+    data: { tableData, chartsData },
+    isLoading,
+    error,
+    handleChangeFilters,
+  } = useShowNeoData();
 
-  function handleChangeFilters(e: React.ChangeEvent<HTMLInputElement>) {
-    setFilters(() => {
-      if (e.target.type === "checkbox") {
-        return {
-          ...filters,
-          [e.target.name]: e.target.checked,
-        };
-      }
-      return {
-        ...filters,
-        [e.target.name]: e.target.value,
-      };
-    });
-  }
+  const options = [
+    { name: "Earth", value: "Earth" },
+    { name: "Juptr", value: "Juptr" },
+    { name: "Mars", value: "Mars" },
+    { name: "Merc", value: "Merc" },
+    { name: "none", value: "none" },
+  ];
+
   if (isLoading) return <div>Loading</div>;
   if (error) return <div>{error}</div>;
 
-  const chartsData = transformEstimatedDiameters(
-    transformedData as NearEarthObject[]
-  );
   return (
     <div>
       <div style={{ display: "flex" }} onChange={handleChangeFilters}>
@@ -68,17 +51,11 @@ export default function DataDisplayPage() {
         }
         name="orbiting_body"
         defaultValue="none"
-        options={[
-          { name: "Earth", value: "Earth" },
-          { name: "Juptr", value: "Juptr" },
-          { name: "Mars", value: "Mars" },
-          { name: "Merc", value: "Merc" },
-          { name: "none", value: "none" },
-        ]}
+        options={options}
       />
       {filters.toShow === TO_SHOW.CHARTS &&
       chartsData &&
-      (chartsData as (string | number)[][]).length > 0 ? (
+      chartsData.length > 0 ? (
         <BarChart
           titles={[
             "NEO Name",
@@ -87,7 +64,7 @@ export default function DataDisplayPage() {
           ]}
           width="100%"
           height="400px"
-          data={chartsData as (string | number)[][]}
+          data={chartsData}
           options={{
             legend: { position: "top" },
             hAxis: {
@@ -105,12 +82,12 @@ export default function DataDisplayPage() {
 
       {filters.toShow === TO_SHOW.TABLE && (
         <Table
-          data={(transformedData as NearEarthObject[]) || []}
+          data={tableData || []}
           headers={[
             {
               title: "",
               dataIndex: "name",
-              render: (row, i) => {
+              render: (_, i) => {
                 return `${i}.`;
               },
             },
@@ -121,7 +98,7 @@ export default function DataDisplayPage() {
             {
               title: "Min Estimated Diameter (km)",
               dataIndex: "estimated_diameter",
-              render(record, index) {
+              render(record) {
                 return record.estimated_diameter.kilometers
                   .estimated_diameter_min;
               },
@@ -129,7 +106,7 @@ export default function DataDisplayPage() {
             {
               title: "Max Estimated Diameter (km)",
               dataIndex: "estimated_diameter",
-              render(record, index) {
+              render(record) {
                 return record.estimated_diameter.kilometers
                   .estimated_diameter_max;
               },
