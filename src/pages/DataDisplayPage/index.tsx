@@ -3,13 +3,14 @@ import { neoApi } from "../../api";
 import BarChart from "../../components/charts/BarChart";
 import { transformEstimatedDiameters } from "../../components/modules/DataDisplay/transformers";
 import Select from "../../components/ui/Select";
+import Table from "../../components/ui/Table";
 import useQuery from "../../hooks/useQuery";
 
 export default function DataDisplayPage() {
   const [filters, setFilters] = useState({
     orbiting_body: "none",
   });
-  const { data, error, isLoading } = useQuery({
+  const { transformedData, error, isLoading, data } = useQuery({
     queryFn: neoApi.getBrowseNeoApi,
     queryKey: "getBrowseNeoApi",
     transformFn: transformEstimatedDiameters(filters),
@@ -37,7 +38,8 @@ export default function DataDisplayPage() {
           { name: "none", value: "none" },
         ]}
       />
-      {data && (data as (string | number)[][]).length > 0 ? (
+      {transformedData &&
+      (transformedData as (string | number)[][]).length > 0 ? (
         <BarChart
           titles={[
             "NEO Name",
@@ -46,7 +48,7 @@ export default function DataDisplayPage() {
           ]}
           width="100%"
           height="400px"
-          data={data as (string | number)[][]}
+          data={transformedData as (string | number)[][]}
           options={{
             legend: { position: "top" },
             hAxis: {
@@ -61,6 +63,32 @@ export default function DataDisplayPage() {
       ) : (
         <div>No Data to show</div>
       )}
+
+      <Table
+        data={data?.near_earth_objects || []}
+        headers={[
+          {
+            title: "Neo Name",
+            dataIndex: "name",
+          },
+          {
+            title: "Min Estimated Diameter (km)",
+            dataIndex: "estimated_diameter",
+            render(record, index) {
+              return record.estimated_diameter.kilometers
+                .estimated_diameter_min;
+            },
+          },
+          {
+            title: "Max Estimated Diameter (km)",
+            dataIndex: "estimated_diameter",
+            render(record, index) {
+              return record.estimated_diameter.kilometers
+                .estimated_diameter_max;
+            },
+          },
+        ]}
+      />
     </div>
   );
 }
