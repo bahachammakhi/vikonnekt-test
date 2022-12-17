@@ -54,7 +54,7 @@ export interface MissDistance {
   miles: string;
 }
 
-export interface CloseApproachData {
+export interface ICloseApproachData {
   close_approach_date: string;
   close_approach_date_full: string;
   epoch_date_close_approach: any;
@@ -106,7 +106,7 @@ export interface NearEarthObject {
   absolute_magnitude_h: number;
   estimated_diameter: EstimatedDiameter;
   is_potentially_hazardous_asteroid: boolean;
-  close_approach_data: CloseApproachData[];
+  close_approach_data: ICloseApproachData[];
   orbital_data: OrbitalData;
   is_sentry_object: boolean;
 }
