@@ -53,7 +53,8 @@ function useQuery<Data, Variables = Record<string, any>, TransformData = Data>({
   );
   return {
     isLoading,
-    data: transformedData,
+    transformedData,
+    data,
     error,
   };
 }
